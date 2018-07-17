@@ -1,4 +1,4 @@
-baseurl = "/"
+baseurl = "https://sgkenner.rbind.io"
 languageCode = "en-us"
 title = "R %in% c(Business)"
 theme = "hugo-xmag"
