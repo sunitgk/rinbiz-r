@@ -42,10 +42,10 @@ library(highcharter)
 ```{r, echo = FALSE}
 
 mkt_share <-
-  readxl::read_excel("~/Documents/Blog trellis/Product_Data/blogdown_data.xlsx",
+  readxl::read_excel("~/Documents/blog_rinbiz/Product_Data/blogdown_data.xlsx",
   sheet = "blogdown_mkt_Share data")
   all_mkt_share <-
-  readxl::read_excel("~/Documents/Blog trellis/Product_Data/blogdown_data.xlsx",
+  readxl::read_excel("~/Documents/blog_rinbiz/Product_Data/blogdown_data.xlsx",
   sheet = "Other")
   
   mkt_share <- mkt_share %>%
