@@ -14,20 +14,20 @@ tags:
   - Highcharter
 ---
 
-To further my 2017 objective of delivering presentations or analysis' results via an interactive app, I attended RStudio's Shiny app training course at the [January 2018 RStudio Conference]("https://www.rstudio.com/conference/").  
+To further my 2017 objective of delivering presentations or analysis' results via an interactive app, I attended RStudio's Shiny app training course at the [January 2018 RStudio Conference](https://www.rstudio.com/conference/).  
 
-One of the business issues was to figure out a balanced distribution of the world wide and US sales force so as to maximize order dollars.  This required figuring out each Product Line's geographical strength and weaknesses in terms of `Order $$` and a further drill-down on each of the top performers within the product line.  Generating insights for each of the products and a summary per their Product Line meant reusing the same shiny app code for each of those products, for which [shiny modules]("https://shiny.rstudio.com/articles/modules.html") provide an efficient approach.  
+One of the business issues was to figure out a balanced distribution of the world wide and US sales force so as to maximize order dollars.  This required figuring out each Product Line's geographical strength and weaknesses in terms of `Order $$` and a further drill-down on each of the top performers within the product line.  Generating insights for each of the products and a summary per their Product Line meant reusing the same shiny app code for each of those products, for which [shiny modules](https://shiny.rstudio.com/articles/modules.html) provide an efficient approach.  
 
-Here is a [Minimal example on shinyapps.io]("https://busaanalytics.shinyapps.io/Module_hc_blogdown_app/"). Also embedded in the post.
+Here is a [Minimal example on shinyapps.io](https://busaanalytics.shinyapps.io/Module_hc_blogdown_app/). Also embedded in the post.
 
 **Please note that Highcharts (http://highcharts.com) is a Highsoft product which is not free for commercial and Governmental use.**
 
 <iframe width="900" height="900" scrolling="yes" frameborder="no"  src="//busaanalytics.shinyapps.io/Module_hc_blogdown_app/"> </iframe>
 
 
-Many thanks to [Winston Chang]("https://github.com/wch"") who sacrificed his breaks at the RStudio Shiny App training course to patiently answer and help me resolve some of the issues I had with the development of this biz dashboard.  Thanks to the RStudio community member @nutterb (Benjamin) for introducing me to scoped verbs in dplyr which resolved the issue posted [here]("https://community.rstudio.com/t/issue-making-dplyr-reactive-variables-work-in-shiny-module/3694").
+Many thanks to [Winston Chang](https://github.com/wch) who sacrificed his breaks at the RStudio Shiny App training course to patiently answer and help me resolve some of the issues I had with the development of this biz dashboard.  Thanks to the RStudio community member @nutterb (Benjamin) for introducing me to scoped verbs in dplyr which resolved the issue posted [here](https://community.rstudio.com/t/issue-making-dplyr-reactive-variables-work-in-shiny-module/3694).
 
-RStudio has quite a few tutorials on [Shiny Modules]("https://www.rstudio.com/resources/webinars/understanding-shiny-modules/"). Joe Cheng's article on Modularizing [Shiny App Code](https://shiny.rstudio.com/articles/modules.html).  Other: 
+RStudio has quite a few tutorials on [Shiny Modules](https://www.rstudio.com/resources/webinars/understanding-shiny-modules/). Joe Cheng's article on Modularizing [Shiny App Code](https://shiny.rstudio.com/articles/modules.html).  Other: 
 
 Here is the server code that calls the module
 

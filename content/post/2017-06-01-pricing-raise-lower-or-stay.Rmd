@@ -176,7 +176,7 @@ data_w_new_price <- tibble(cost = opt_price_w_no_cost[[1]], Month = as.IDate("20
 predict(m.Final_product, data_w_new_price, interval = "p")
 ```
 
-Thanks to [Allan Engelhardt]("http://www.cybaea.net/") for all his help on the analysis/thorough explanation of linear regression models, and the excellent and detailed Cross-Price_Elasticity article by [Jack Han]("http://www.DataApple.net"). 
+Thanks to [Allan Engelhardt](http://www.cybaea.net/) for all his help on the analysis/thorough explanation of linear regression models, and the excellent and detailed Cross-Price_Elasticity article by [Jack Han](http://www.DataApple.net). 
 
 
 

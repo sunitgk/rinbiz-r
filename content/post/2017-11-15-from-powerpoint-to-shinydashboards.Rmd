@@ -14,7 +14,7 @@ tags:
   - Highcharter
 ---
 
-One of my goals for 2017 was to build and provide presentations as interactive products distributed and accessible to the management team as a web app.  Using [ShinyDashboards]( https://rstudio.github.io/shinydashboard/get_started.html) and [highcharter: R wrapper for Highcharts]("http://jkunst.com/highcharter/") for visualization, here is a [starter example on shinyapps.io](https://busaanalytics.shinyapps.io/compBrief_Blogdown/) of one of the presentations that I would have normally created in Powerpoint. Also embedded in the post.
+One of my goals for 2017 was to build and provide presentations as interactive products distributed and accessible to the management team as a web app.  Using [ShinyDashboards]( https://rstudio.github.io/shinydashboard/get_started.html) and [highcharter: R wrapper for Highcharts](http://jkunst.com/highcharter/) for visualization, here is a [starter example on shinyapps.io](https://busaanalytics.shinyapps.io/compBrief_Blogdown/) of one of the presentations that I would have normally created in Powerpoint. Also embedded in the post.
 
 **Please note that Highcharts (http://highcharts.com) is a Highsoft product which is not free for commercial and Governmental use.**
 
@@ -110,11 +110,11 @@ hc
 
 ```
 
-There are plenty of [ShinyDashboards Examples with source code]("https://rstudio.github.io/shinydashboard/examples.html") and [Joshua Kunst]("http://jkunst.com/") who is the author of Highcharter has done an excellent job of providing examples on how to replicate [highcharts demos]("https://cran.r-project.org/web/packages/highcharter/vignettes/replicating-highcharts-demos.htmlauthor). 
+There are plenty of [ShinyDashboards Examples with source code](https://rstudio.github.io/shinydashboard/examples.html) and [Joshua Kunst](http://jkunst.com/) who is the author of Highcharter has done an excellent job of providing examples on how to replicate [highcharts demos](https://cran.r-project.org/web/packages/highcharter/vignettes/replicating-highcharts-demos.htmlauthor). 
 
-Thank you [Joshua Kunst]("http://jkunst.com/") for all your help on the visualizations.  
+Thank you [Joshua Kunst](http://jkunst.com/) for all your help on the visualizations.  
 Other resources for highcharter visualizations that I found useful in creating the visuals:
-[Danton Noriega's post]("https://dantonnoriega.github.io/ultinomics.org/post/2017-04-05-highcharter-explainer.html")
-[R documentation on highcharter package]("https://www.rdocumentation.org/packages/highcharter/versions/0.5.0/topics/hc_drilldown")
+[Danton Noriega's post](https://dantonnoriega.github.io/ultinomics.org/post/2017-04-05-highcharter-explainer.html)
+[R documentation on highcharter package](https://www.rdocumentation.org/packages/highcharter/versions/0.5.0/topics/hc_drilldown)
 
 
