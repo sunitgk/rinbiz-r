@@ -1,0 +1,207 @@
+---
+title: Sales Insights using Shiny Modules & Highcharter
+thumbnail: "/img/shinymodules_hc.png"
+author: Sunita Kenner
+date: '2018-03-05'
+slug: shiny-modules-product-line-insights
+categories:
+  - Business Science
+  - Product Insights
+  - Pricing
+tags:
+  - R
+  - blogdown
+  - Highcharter
+---
+
+
+
+<p>To further my 2017 objective of delivering presentations or analysis’ results via an interactive app, I attended RStudio’s Shiny app training course at the <a href="%22https://www.rstudio.com/conference/%22">January 2018 RStudio Conference</a>.</p>
+<p>One of the business issues was to figure out a balanced distribution of the world wide and US sales force so as to maximize order dollars. This required figuring out each Product Line’s geographical strength and weaknesses in terms of <code>Order $$</code> and a further drill-down on each of the top performers within the product line. Generating insights for each of the products and a summary per their Product Line meant reusing the same shiny app code for each of those products, for which <a href="%22https://shiny.rstudio.com/articles/modules.html%22">shiny modules</a> provide an efficient approach.</p>
+<p>Here is a <a href="%22https://busaanalytics.shinyapps.io/Module_hc_blogdown_app/%22">Minimal example on shinyapps.io</a>. Also embedded in the post.</p>
+<p><strong>Please note that Highcharts (<a href="http://highcharts.com" class="uri">http://highcharts.com</a>) is a Highsoft product which is not free for commercial and Governmental use.</strong></p>
+<iframe width="900" height="900" scrolling="yes" frameborder="no" src="//busaanalytics.shinyapps.io/Module_hc_blogdown_app/">
+</iframe>
+<p>Many thanks to <a href="%22https://github.com/wch%22%22">Winston Chang</a> who sacrificed his breaks at the RStudio Shiny App training course to patiently answer and help me resolve some of the issues I had with the development of this biz dashboard. Thanks to the RStudio community member <span class="citation">@nutterb</span> (Benjamin) for introducing me to scoped verbs in dplyr which resolved the issue posted <a href="%22https://community.rstudio.com/t/issue-making-dplyr-reactive-variables-work-in-shiny-module/3694%22">here</a>.</p>
+<p>RStudio has quite a few tutorials on <a href="%22https://www.rstudio.com/resources/webinars/understanding-shiny-modules/%22">Shiny Modules</a>. Joe Cheng’s article on Modularizing <a href="https://shiny.rstudio.com/articles/modules.html">Shiny App Code</a>. Other:</p>
+<p>Here is the server code that calls the module</p>
+<pre class="r"><code>source(&quot;alt_prod_blog.R&quot;)
+
+ui &lt;- dashboardPage(
+  # Application title ---------------------------------------------------------
+  dashboardHeader(title = &quot;Business Insights&quot;, titleWidth = 200),
+  ),
+  
+  # Output: -----------------------------------------------------------------
+  dashboardBody(
+    # Define tabs per product
+    tabsetPanel(
+      id = &quot;lic_data_set_both&quot;,
+      tabPanel(&quot;ProductA&quot;, TS_module_UI(&quot;productA&quot;)),
+      tabPanel(&quot;ProductB&quot;, TS_module_UI(&quot;productB&quot;)),
+      tabPanel(&quot;ALL&quot;, TS_module_UI(&quot;all&quot;))
+      
+    )
+  )
+
+server &lt;- function(input, output) {
+  x     &lt;- reactive(input$year)
+  y     &lt;- reactive(input$y)
+  prod_group &lt;- reactive(input$prod_group)
+  show_data &lt;- reactive(input$show_data)
+  
+  callModule(
+    TS_module,
+    &quot;productA&quot;,
+    data = list(lic_data_set_both, mapdata, worldmapdata),
+    product = &quot;ProductA&quot;,
+    prod_group,
+    x,
+    y,
+    show_data
+  )
+  callModule(
+    TS_module,
+    &quot;productB&quot;,
+    data = list(lic_data_set_both, mapdata, worldmapdata),
+    product = &quot;ProductB&quot;,
+    prod_group,
+    x,
+    y,
+    show_data
+  )
+  callModule(
+    TS_module,
+    &quot;all&quot;,
+    data = list(lic_data_set_both, mapdata, worldmapdata),
+    product = &quot;ALL&quot;,
+    prod_group,
+    x,
+    y,
+    show_data
+  )
+}
+
+shinyApp(ui = ui, server = server)</code></pre>
+<p>Here is an extract of the Module UI and server piece.</p>
+<pre class="r"><code># Module UI -------------------------------------------------------------------
+
+TS_module_UI &lt;- function(id) {
+  ns &lt;- NS(id)
+  
+  tagList(
+   
+    fluidRow(
+      box(highchartOutput(ns(&quot;product_group&quot;))),
+      box(highchartOutput(ns(&quot;by_region&quot;))),
+      box(highchartOutput(ns(&quot;top_10_prod&quot;))),
+      box(highchartOutput(ns(&quot;top_10_states&quot;)))
+    )
+  )
+}
+
+#Module Server ----------------------------------------------------------------------------
+
+TS_module &lt;-
+  function(input,
+           output,
+           session,
+           data,
+           product,
+           prod_group,
+           x,
+           y,
+           show_data) {
+    
+    TS_with_year_filtered &lt;- reactive({
+      
+      data &lt;- as_tibble(data[[1]])
+      get_year &lt;- x()
+      get_unit_measure &lt;- y()
+      
+      if (prod_group()) {
+        data %&gt;%
+          filter(between(FY, get_year[1], get_year[2]),
+                 `Prod Group` == &quot;SERVER&quot;)
+      } else {
+        data %&gt;% filter(between(FY, get_year[1], get_year[2]))
+      }
+    })
+    
+    
+    TS_with_All_vs_namedProdtype &lt;- reactive({
+      
+      if (as.character(product) == &quot;ALL&quot;) {
+        TS_with_year_filtered()
+      } else {
+        TS_with_year_filtered() %&gt;%
+          filter(Product == as.character(product))
+      }
+    })
+    
+ 
+    TS_with_Product &lt;- reactive({
+      get_unit_measure &lt;- y()
+      Product_data &lt;- TS_with_year_filtered()
+      
+      
+      if (as.character(product) == &quot;ALL&quot;) {
+        
+        Product_data %&gt;%
+          group_by_at(.vars = c(&quot;FY&quot;, &quot;SalesTeam&quot;)) %&gt;%
+          summarize_at(vars(get_unit_measure), sum)
+      } else {
+        Product_data %&gt;%
+          filter(Product == as.character(product)) %&gt;%
+          group_by_at(.vars = c(&quot;FY&quot;, &quot;SalesTeam&quot;)) %&gt;%
+          summarize_at(vars(get_unit_measure), sum)
+      }
+    })
+    
+    
+    #Calculate Total YTD data
+    
+    TS_YTD_Orders &lt;- reactive({
+      
+      TS_with_Product() %&gt;%
+        summarise_at(.vars = c(y()), funs(Total = sum)) %&gt;%
+        summarise(Total = sum(Total)) %&gt;%
+        pull()
+    })
+    
+    
+    generate_top_10_states &lt;- reactive({
+      get_unit_measure &lt;- y()
+      TS_state_orders() %&gt;%
+        arrange_at(.vars = c(get_unit_measure), desc) %&gt;%
+        head(10)
+      
+    })
+    
+    output$top_10_states &lt;- renderHighchart({
+      
+      df &lt;- generate_top_10_states()
+      get_unit_measure &lt;- y()
+      
+      highchart() %&gt;%
+        hc_title(text = &quot;Top 10: Orders_by_state&quot;) %&gt;%
+        hc_add_series(df,
+                      &quot;pie&quot;,
+                      hcaes(&quot;`postal-code`&quot;,!!get_unit_measure),
+                      name = as.character(get_unit_measure)) %&gt;%
+        hc_plotOptions(series = list(
+          dataLabels = list(enabled = TRUE, format = &#39;{point.name}: {point.percentage:.1f}%&#39;))) %&gt;%
+        hc_exporting(
+          enabled = T,
+          buttons = list(contextButton = list(
+            menuItems = c(
+              &quot;downloadPNG&quot;,
+              &quot;downloadJPEG&quot;,
+              &quot;separator&quot;,
+              &quot;downloadCSV&quot;,
+              &quot;downloadXLS&quot;
+            )
+          )),
+          filename = &quot;Top_10_ordersbystate&quot;
+        )
+    })</code></pre>

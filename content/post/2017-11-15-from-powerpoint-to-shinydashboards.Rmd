@@ -1,0 +1,120 @@
+---
+title: From Powerpoint to ShinyDashboards & Highcharter
+thumbnail: "/img/ppt_dashboards.png"
+author: Sunita Kenner
+date: '2017-11-15'
+slug: from-powerpoint-to-shinydashboards
+categories:
+  - Competitive Brief
+  - Shiny Dashboards
+tags:
+  - R
+  - blogdown
+  - shiny
+  - Highcharter
+---
+
+One of my goals for 2017 was to build and provide presentations as interactive products distributed and accessible to the management team as a web app.  Using [ShinyDashboards]( https://rstudio.github.io/shinydashboard/get_started.html) and [highcharter: R wrapper for Highcharts]("http://jkunst.com/highcharter/") for visualization, here is a [starter example on shinyapps.io](https://busaanalytics.shinyapps.io/compBrief_Blogdown/) of one of the presentations that I would have normally created in Powerpoint. Also embedded in the post.
+
+**Please note that Highcharts (http://highcharts.com) is a Highsoft product which is not free for commercial and Governmental use.**
+
+<iframe width="900" height="900" scrolling="yes" frameborder="no"  src="//busaanalytics.shinyapps.io/compBrief_Blogdown/"> </iframe>
+
+
+```{r, eval = FALSE, echo = FALSE}
+# Used iframe to control the size of the app. 
+knitr::include_app("https://busaanalytics.shinyapps.io/compBrief_Blogdown/", height = "900px")
+#knitr::include_app("https://busaanalytics.shinyapps.io/compBrief_Blogdown/", height = "900px", width = "900px")
+```
+
+There are plenty of [ShinyDashboards Examples with source code]("https://rstudio.github.io/shinydashboard/examples.html") and [Joshua Kunst]("http://jkunst.com/") who is the author of Highcharter has done an excellent job of providing examples on how to replicate [highcharts demos]("https://cran.r-project.org/web/packages/highcharter/vignettes/replicating-highcharts-demos.htmlauthor). 
+
+Thank you [Joshua Kunst]("http://jkunst.com/") for all your help/responses on the highchart/highcharter visualization questions I had. 
+
+Here is an example of the code for the [column with drilldown chart]("https://www.highcharts.com/demo/column-drilldown")] on my dataset.
+
+```{r, error= FALSE, warning = FALSE, message = FALSE}
+library(tidyverse)
+library(highcharter)
+```
+
+```{r, echo = FALSE}
+
+mkt_share <-
+  readxl::read_excel("~/Documents/Blog trellis/Product_Data/blogdown_data.xlsx",
+  sheet = "blogdown_mkt_Share data")
+  all_mkt_share <-
+  readxl::read_excel("~/Documents/Blog trellis/Product_Data/blogdown_data.xlsx",
+  sheet = "Other")
+  
+  mkt_share <- mkt_share %>%
+  filter(Year == 2016) %>%
+  arrange(desc(`Annual Rev`))
+  
+  other_data <- all_mkt_share[-(1:19), ] %>%
+  arrange(desc(`Annual Rev`))
+
+```
+
+View market share data
+
+```{r}
+mkt_share
+other_data
+```
+
+```{r, echo = FALSE}
+# highchart() %>% 
+#  hc_add_series(Prop_survey_data, "pie", hcaes(name = Mode_of_trans, y = prop_of_students), name = "% of Trans", dataLabels = list(enabled = TRUE, format = '{point.name}: {point.y}%')) %>% 
+#  hc_add_theme(hc_theme_ffx())
+```
+
+Prep the data for drill-down
+
+```{r}
+#First data set
+
+first_mkt_share_data <- mkt_share %>%
+  mutate(name = Vendor,
+         y = `Annual Rev`,
+         drilldown = tolower(name)) %>%
+  select(name, y, drilldown) %>%
+  list_parse()
+
+#Second data set containing drill-down content
+data_for_drilled_column <- other_data %>%
+  mutate(name = Vendor,
+         y = `Annual Rev`,
+         drilldown = tolower(name)) %>%
+  select(name, y) %>%
+  list_parse2() %>%
+  map(function(x) {
+    x[[2]] <- as.numeric(x[[2]])
+    x
+})
+
+# Plot using highcharter
+
+hc <- highchart() %>%
+  hc_chart(type = "column") %>%
+  hc_title(text = "2016: WW Product Market Share $M") %>%
+  hc_subtitle(text = "Click 'Other' to view 'Other' Vendors") %>%
+  hc_xAxis(type = "category") %>%
+  hc_legend(enabled = FALSE) %>%
+  hc_plotOptions(series = list(boderWidth = 0, dataLabels = list(enabled = TRUE))) %>%
+  hc_add_series(name = "Mkt Share",colorByPoint = TRUE, data = first_mkt_share_data) %>%
+  hc_drilldown(allowPointDrilldown = TRUE,
+  series = list(list(id = "other", data = data_for_drilled_column)))
+  
+hc
+
+```
+
+There are plenty of [ShinyDashboards Examples with source code]("https://rstudio.github.io/shinydashboard/examples.html") and [Joshua Kunst]("http://jkunst.com/") who is the author of Highcharter has done an excellent job of providing examples on how to replicate [highcharts demos]("https://cran.r-project.org/web/packages/highcharter/vignettes/replicating-highcharts-demos.htmlauthor). 
+
+Thank you [Joshua Kunst]("http://jkunst.com/") for all your help on the visualizations.  
+Other resources for highcharter visualizations that I found useful in creating the visuals:
+[Danton Noriega's post]("https://dantonnoriega.github.io/ultinomics.org/post/2017-04-05-highcharter-explainer.html")
+[R documentation on highcharter package]("https://www.rdocumentation.org/packages/highcharter/versions/0.5.0/topics/hc_drilldown")
+
+

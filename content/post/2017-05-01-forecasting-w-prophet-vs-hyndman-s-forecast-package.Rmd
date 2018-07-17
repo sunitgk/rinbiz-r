@@ -1,0 +1,232 @@
+---
+title: "Forecasting W/Prophet Vs Hyndman’s Forecast Package"
+author: "Sunita Kenner"
+date: '2017-05-01'
+slug: forecasting-w-prophet-vs-hyndman-s-forecast-package
+tags:
+- R
+- Prophet
+- Forecast
+- dygraph
+categories:
+- Forecasting
+- Time Series
+---
+
+Having used [Rob Hyndman's forecasting package](http://robjhyndman.com) in R, I decided to give [Facebook's Prophet](https://facebookincubator.github.io/prophet/docs/quick_start.html) package a spin and do a comparison of the results.
+
+```{r, echo = FALSE, message = FALSE, warning=FALSE}
+#load required libraries
+
+library(forecast)
+library(tidyverse)
+#library(dygraphs)
+library(plotly)
+library(lubridate)
+library(prophet)
+
+#devtools::install_github('hadley/ggplot2')
+
+```
+
+
+```{r, echo = FALSE, eval = FALSE, warning=FALSE}
+#Load data sets:
+
+daily_data_raw <- readRDS("~/Documents/Blog trellis/Product_Data/daily_data.rds")
+monthly_data_raw <- readRDS("~/Documents/Blog trellis/Product_Data/monthlydata.rds")
+
+data_manipulate <- function(df) {
+  df %>% 
+    filter(y >0) %>% 
+    mutate(y = log(y), y_new = round(y*5)) %>%
+    select(y_new, ds) %>%
+    rename(y = y_new)
+}
+
+data_manipulate_month <- function(df) {
+  df %>% 
+    filter(y >0) %>% 
+    mutate(y = round(y*25)) %>%
+    select(y, ds)
+}
+
+daily_data <- data_manipulate(daily_data_raw)
+saveRDS(daily_data, "~/Documents/Blog trellis/Product_Data/daily_data1.rds")
+monthly_data <- data_manipulate_month(monthly_data_raw)
+saveRDS(monthly_data, "~/Documents/Blog trellis/Product_Data/monthly_data1.rds")
+
+```
+
+```{r, echo = FALSE}
+daily_data <- readRDS("~/Documents/Blog trellis/Product_Data/daily_data1.rds")
+monthly_data <- readRDS("~/Documents/Blog trellis/Product_Data/monthly_data1.rds")
+```
+
+##Forecasts using Prophet
+
+The Time-series data sets:
+- Daily data set
+
+```{r, echo = FALSE}
+head(daily_data)
+```
+
+Prophet provides the ability to [forecast projected growth](https://facebookincubator.github.io/prophet/docs/forecasting_growth.html) based on market intel, by specifying the carrying capacity 'cap'; the forecast should reach the maximum/saturation at the set 'cap'. For this data set, I've set the cap at 7 units/day, but the forecaster can choose to set it at an increasing/decreasing sequence.  
+
+```{r}
+
+daily_Data_wgrowth <- daily_data %>% 
+  mutate(cap = 7)
+head(daily_Data_wgrowth)
+```
+
+Visualize the daily timeseries
+```{r}
+ggplotly(ggplot(daily_data, aes(x = ds, y = y)) + geom_line(color = "firebrick") + ggtitle("Daily Timeseries")) 
+```
+
+Functions calling function prophet that fits and returns the model, then predicts on the model object. More info available from [Prophet's page](https://facebookincubator.github.io/prophet/docs/installation.html) 
+
+```{r}
+#Function to apply prophet model to timeseries
+prophet_apply <- function(timeseries, growthtype = NULL) {
+  if(is.null(growthtype))
+     prophet(timeseries)
+    else
+      prophet(timeseries, growth = growthtype)
+}
+
+#Create future data_frame and predict on the model object
+prophet_fcst_apply <-
+  function(m,
+           length_time,
+           cap_size = NULL) {
+    if (is.null(cap_size))
+    { future_df <- make_future_dataframe(m, periods = length_time)
+    }
+    else 
+    { future_df <- make_future_dataframe(m, periods = length_time)
+      future_df['cap'] = cap_size
+    }
+    
+  fcst_df <- predict(m, future_df)
+  }
+
+```
+
+
+Model and forecast with prophet:
+
+```{r, warning= FALSE, message = FALSE}
+model_daily <- prophet_apply(daily_data)
+model_daily_wgrowth <- prophet_apply(daily_Data_wgrowth, 'logistic')
+
+Fcst_daily <- prophet_fcst_apply(model_daily, 730)
+Fcst_daily_wgrowth <- prophet_fcst_apply(model_daily_wgrowth, 730, 7)
+
+```
+
+View forecasted units with their upper/lower confidence interval 
+```{r}
+
+#Select forecast with lower/upper confidence intervals from the predicted object
+#Specify time frame for selection
+view_select_Fcst <- function(fcst_df, date_begin, date_end) {
+  selected_Fcst <- fcst_df %>% 
+    filter(ds >date_begin  & ds< date_end) %>% 
+    select(ds, yhat, yhat_lower, yhat_upper)
+}
+
+tail(view_select_Fcst(Fcst_daily, "2017-04-01", "2018-04-01"))
+```
+
+Visualize the forecast by calling the generic plot function. I'm wrapping ggplotly(via [Plotly package](https://plot.ly/ggplot2/)) around the plot function for interactive web-based version.
+
+Plots for forecasted daily data: 
+```{r, warning=FALSE, message=FALSE}
+
+#Plot function for daily fcst
+plot_daily <- function(m, fcst, fnc) {
+    fnc(m, fcst)
+}
+
+ggplotly(plot_daily(model_daily, Fcst_daily, plot))
+plot_daily(model_daily, Fcst_daily, prophet_plot_components)
+
+```
+
+Sum forecast unit totals and forecast order dollars based on user specified price (in this case. price is set at $25).
+
+```{r}
+#summarise yearly forecast units and order dollars
+summary_fcst_units_price <- function(df, price, fcst_num) {
+  df %>% 
+   dplyr::summarise(Fcst_qty = sum(df[[fcst_num]]), Fcst_Dlrs = Fcst_qty*price)
+}
+
+```
+
+Daily data set:
+```{r}
+#Call summary_fcst_units_price function on the predicted daily numbers
+sum_daily <- summary_fcst_units_price(view_select_Fcst(Fcst_daily, "2017-04-01", "2018-04-01"), 25, "yhat")
+sum_daily
+```
+
+Plots for daily_data with growth
+
+```{r, message = FALSE, warning= FALSE}
+ggplotly(plot_daily(model_daily_wgrowth, Fcst_daily_wgrowth, plot))
+plot_daily(model_daily_wgrowth, Fcst_daily_wgrowth, prophet_plot_components)
+
+```
+
+Daily_data with growth set:
+```{r}
+tail(view_select_Fcst(Fcst_daily_wgrowth, "2017-04-01", "2018-04-01"))
+sum_daily_wgrowth <- summary_fcst_units_price(view_select_Fcst(Fcst_daily_wgrowth,  "2017-04-01", "2018-04-01"),25, "yhat")
+sum_daily_wgrowth
+
+```
+
+
+## Forecasts using Forecast Package by Hyndman
+
+Using Auto ETS:
+```{r}
+
+#Auto ETS forecast
+daily_ts <- ts(daily_data[,1], start(2016,1,1), frequency = 7)
+daily_auto_fcst <- forecast(daily_ts, h = 365)
+#autoplot(daily_auto_fcst)
+ggplotly(autoplot(daily_auto_fcst))
+
+```
+
+Sum total units and total order dollars based on price at $25
+```{r}
+sum_hyndman_ets <- summary_fcst_units_price(data.frame(daily_auto_fcst), 25, "Point.Forecast")
+```
+
+Using Auto Arima:
+```{r}
+#Auto Arima Forecast
+fit_ar_daily<- auto.arima(daily_ts)
+daily_auto_ar_fcst <- forecast(fit_ar_daily, h = 365)
+#autoplot(daily_auto_fcst)
+ggplotly(autoplot(daily_auto_fcst))
+
+```
+
+```{r}
+sum_hyndman_ar <- summary_fcst_units_price(data.frame(daily_auto_ar_fcst), 25, "Point.Forecast")
+
+```
+
+Let's now compare the forecast results from Prophet and Forecast package by Hyndman
+```{r, message = FALSE}
+All_TS_fcst <- full_join(full_join(sum_daily, sum_daily_wgrowth), full_join(sum_hyndman_ets, sum_hyndman_ar))
+rownames(All_TS_fcst) <- c("Fcst_daily_prophet", "Fcst_daily_wgrowth_prophet", "Fcst_daily_forecast_ETS", "Fcst_daily_forecast_ARIMA")
+knitr::kable(All_TS_fcst, caption = "Forecasts from Prophet & Forecast Package")
+```

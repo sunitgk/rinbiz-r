@@ -1,0 +1,34 @@
+---
+title: 'Net Promoter Score: Using ggvis/NPS package in R'
+thumbnail: "/img/NPS_img.png"
+author: Sunita Kenner
+date: '2015-12-15'
+slug: net-promoter-score-using-ggvis-nps-package-in-r
+categories:
+  - Business Science
+  - Net Promoter Score
+tags:
+  - R
+  - NPS
+  - ggvis
+  - shiny
+---
+
+"How likely are you to recommend "Company A" to a friend?" is an [Net Promoter Score (NPS)](http://www.netpromotersystem.com/about/why-net-promoter.aspx) question (Likelihood to Recommend/LTR) which categorizes the responses(voice of the customers) under 3 camps:
+
+```{r, echo = FALSE}
+#LTR: Likelihood to Recommend 
+NPS_Categories <- data.frame(Customers = c("Promoters", "Passives", "Detractors"), LTR_Score = c("9 or 10", "7 or 8", "0 to 6"))
+knitr::kable(NPS_Categories)
+
+```
+
+
+A customer loyalty metric introduced by [Fred Reicheld, Founder of Bain & Company's Loyalty Practice](http://www.netpromotersystemblog.com/author/fred-reichheld/), the [Net Promoter Score (NPS)](http://www.netpromotersystem.com/about/why-net-promoter.aspx) is used at my work as a compass by business decision makers to understand if NPS provides an insight to what drives customers to repeat purchase, referrals, and resistance to competitor offerings. Does higher NPS mean repeat purchases? Referrals? Loyalty to brand/resistance to competitors?
+
+This post however will not dwell on the interpretation of the NPS results for decision making (this is a subject matter for another post), but rather building a simple shiny app (first app) using [ggvis]("http://ggvis.rstudio.com/") and the [NPS package in R authored by Brendan Rocks](https://cran.r-project.org/web/packages/NPS/NPS.pdf), which provides functions that make working with the NPS survey data easier; includes Data transformation methods, statistical properties (variance & SE), and simple inferential testing procedures. [Brendan Rocks]("https://brendanrocks.com/work/"), yes 'Rocks' is indeed his last name, was kind enough to help out with answering some of the questions I had on the NPS functions. Thank you Brendan.   
+
+
+```{r, echo = FALSE}
+knitr::include_app("https://busaanalytics.shinyapps.io/nps_app/", height = "900px")
+```

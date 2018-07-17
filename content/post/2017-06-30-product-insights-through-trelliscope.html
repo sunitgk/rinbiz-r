@@ -1,0 +1,87 @@
+---
+title: Product Insights Through Trelliscope
+thumbnail: "/img/trelliscope_img.png"
+author: Sunita Kenner
+date: '2017-06-30'
+slug: product-insights-through-trelliscope
+categories:
+  - Business Science
+  - Product Insights
+  - Visualizations
+tags:
+  - trelliscopejs
+  - R
+  - multiple displays
+---
+
+<script src="/rmarkdown-libs/htmlwidgets/htmlwidgets.js"></script>
+<script src="/rmarkdown-libs/trelliscopejs_widget/trelliscope.min.js"></script>
+<script src="/rmarkdown-libs/trelliscopejs_widget-binding/trelliscopejs_widget.js"></script>
+
+
+<p><strong>Note: The trelliscope plot displays with blogdown would not have been possible without <a href="https://yihui.name">Yihui Xie’s</a> lightning fast help. Not only did he implement the fix (in an afternoon), but <a href="https://bookdown.org/yihui/blogdown/dep-path.html">documented/provided 2 options</a> to fixing the trelliscope display issue. Thank you so much Yihui.</strong></p>
+<p>One of the impressive presentations at <a href="https://www.rstudio.com/conference/">Jan 2017 RStudio Conference</a> was Ryan Hafen’s <a href="http://slides.com/hafen/trelliscopejs#/">trelliscopejs R package in action: Visualization in the Tidyverse</a>. “TrelliscopeJS is a framework for creative interactive displays of small multiples”, and this is incredibly powerful when providing insights on product lines to decision makers.</p>
+<p>User will be able to use the <code>Sort</code>, <code>Filter</code>, <code>Labels</code>, and <code>Grid</code> tabs to gain further insights from the data. A powerful way to dig deeper into data without having to produce several seperate plots. The display can be viewed full screen using the toggle @ right-hand corner.</p>
+<p>Using <code>nest()</code> in <code>tidyverse</code>, <code>rbokeh</code> and <code>trelliscope</code></p>
+<pre class="r"><code>Trellis_Data1 &lt;- Product_df_1 %&gt;%
+  group_by(Products, Month, region) %&gt;% 
+  mutate(Unit.Cost = mean(Unit.Cost))
+
+Trellis_Data2 &lt;- Trellis_Data1 %&gt;%
+  group_by(Products, region) %&gt;%
+  mutate(industry_most = names(tail(sort(table(industry)), 1)))
+
+ Trell_plot &lt;- Trellis_Data2 %&gt;%
+  dplyr::group_by(Products, Month, region, industry_most) %&gt;%
+  dplyr::summarise(Qty = sum(Qty), Amt = sum(Amount), ASP = Amt/Qty) %&gt;%
+  group_by(Products, region) %&gt;%
+  nest() %&gt;%
+  mutate(panel = map_plot(data,
+    ~ figure(toolbar = NULL, xlim = c(4.5, 12.5), ylim = c(21.5, 101)) %&gt;%
+      ly_points(Month, ASP, hover = .x[1:3], data = .x)
+  ))
+
+Trell_plot %&gt;% trelliscope(name = &quot;ASP_Month&quot;, nrow =2, ncol = 4, width = 500,  path = blogdown::dep_path())</code></pre>
+<div id="htmlwidget-1" style="width:900px;height:550px;" class="trelliscopejs_widget html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1">{"x":{"id":"881eee3d","config_info":"'/post/2017-06-30-product-insights-through-trelliscope_files/figure-html/unnamed-chunk-3/appfiles/config.jsonp'","self_contained":false,"latest_display":{"name":"ASP_Month","group":"common"},"spa":false,"in_knitr":true,"in_notebook":false},"evals":[],"jsHooks":[]}</script>
+<p>The one variable I was not seeing on the display to sort and filter by was <code>industry</code>. Please see note from Ryan Hafen for an explanation as to why the variable cannot be used for display, and what can be done to address it.</p>
+<pre class="r"><code>Trellis_Data1 %&gt;%
+  group_by(Products, region) %&gt;%
+  summarise(uniq_industry = length(unique(industry)))</code></pre>
+<div id="note-from-ryan-hafen" class="section level3">
+<h3>Note from Ryan Hafen</h3>
+<blockquote>
+<p>To add additional variables to a display to sort and filter on, those variables just need to be present in the data. If it’s a numeric variable, a summary statistic (mean) will be computed. If it’s categorical, like <code>industry</code>, then the variable can only be included if it is constant within each panel (each panel can have a set of scalar metrics to sort and filter on - these cannot be vectors). The <code>industry</code> variable cannot be used in the above display because it is not unique within each combination of <code>Products</code> and <code>region</code>. You could create a new variable that is the most prominent industry for each <code>Products</code> / <code>region</code> combination and then it would be automatically included.</p>
+</blockquote>
+<pre class="r"><code>Trellis_Data2 &lt;- Trellis_Data1 %&gt;%
+  group_by(Products, region) %&gt;%
+  mutate(industry_most = names(tail(sort(table(industry)), 1)))
+
+Trellis_Data2</code></pre>
+<pre><code>## # A tibble: 888 x 10
+## # Groups:   Products, region [9]
+##    Products Unit.Cost Amount   Qty Ship.Country       Year Month region   
+##    &lt;chr&gt;        &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;             &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt;    
+##  1 ProdA         94.9  665       7 United States of…  2016  5.00 &quot; North …
+##  2 ProdA         94.9   96.0     1 United States of…  2016  5.00 &quot; North …
+##  3 ProdA         94.9  655       7 United States of…  2016  5.00 &quot; North …
+##  4 ProdA         93.9   93.9     1 Australia          2016  5.00 &quot; Austra…
+##  5 ProdA         94.9   93.9     1 Switzerland        2016  5.00 &quot; EMEA &quot; 
+##  6 ProdA         94.9   96.0     1 United Kingdom     2016  5.00 &quot; EMEA &quot; 
+##  7 ProdC         96.0  288       3 Germany            2016  5.00 &quot; EMEA &quot; 
+##  8 ProdC         96.0  192       2 United States of…  2016  5.00 &quot; North …
+##  9 ProdC         96.0  192       2 United Kingdom     2016  5.00 &quot; EMEA &quot; 
+## 10 ProdC         96.0  192       2 Ireland            2016  5.00 &quot; EMEA &quot; 
+## # ... with 878 more rows, and 2 more variables: industry &lt;fct&gt;,
+## #   industry_most &lt;chr&gt;</code></pre>
+<p>Using <code>qplot</code> and <code>facet_treplliscope</code></p>
+<pre class="r"><code>#Does not work because of ggplot2
+install.packages(&quot;ggplot2&quot;)
+library(ggplot2)
+qplot(Month, Unit.Cost, data = Trellis_Data2) + 
+  xlim(4.5, 12.5) + ylim(21.5, 101) + 
+facet_trelliscope(~ Products + region, nrow = 2, ncol = 4, width = 500, path = blogdown::dep_path(&quot;rmarkdown_files/Unitcost_vs_Month_gg&quot;))</code></pre>
+<p>There will be future posts on gaining powerful multiple insights from displays of small multiples.</p>
+<p>Thanks again for all your help <a href="https://yihui.name">Yihui</a> &amp; <a href="https://hafen.github.io/trelliscopejs/#trelliscope">Ryan</a>. Appreciate the time and effort you’ve spent in helping me resolve some of the issues I encountered while using the package.<br />
+<a href="http://ryanhafen.com/blog/trelliscopejs">More trelliscopejs</a>.</p>
+</div>

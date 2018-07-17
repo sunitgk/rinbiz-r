@@ -1,0 +1,45 @@
+---
+title: 'Net Promoter Score: Using ggvis/NPS package in R'
+thumbnail: "/img/NPS_img.png"
+author: Sunita Kenner
+date: '2015-12-15'
+slug: net-promoter-score-using-ggvis-nps-package-in-r
+categories:
+  - Business Science
+  - Net Promoter Score
+tags:
+  - R
+  - NPS
+  - ggvis
+  - shiny
+---
+
+
+
+<p>“How likely are you to recommend”Company A&quot; to a friend?&quot; is an <a href="http://www.netpromotersystem.com/about/why-net-promoter.aspx">Net Promoter Score (NPS)</a> question (Likelihood to Recommend/LTR) which categorizes the responses(voice of the customers) under 3 camps:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Customers</th>
+<th align="left">LTR_Score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Promoters</td>
+<td align="left">9 or 10</td>
+</tr>
+<tr class="even">
+<td align="left">Passives</td>
+<td align="left">7 or 8</td>
+</tr>
+<tr class="odd">
+<td align="left">Detractors</td>
+<td align="left">0 to 6</td>
+</tr>
+</tbody>
+</table>
+<p>A customer loyalty metric introduced by <a href="http://www.netpromotersystemblog.com/author/fred-reichheld/">Fred Reicheld, Founder of Bain &amp; Company’s Loyalty Practice</a>, the <a href="http://www.netpromotersystem.com/about/why-net-promoter.aspx">Net Promoter Score (NPS)</a> is used at my work as a compass by business decision makers to understand if NPS provides an insight to what drives customers to repeat purchase, referrals, and resistance to competitor offerings. Does higher NPS mean repeat purchases? Referrals? Loyalty to brand/resistance to competitors?</p>
+<p>This post however will not dwell on the interpretation of the NPS results for decision making (this is a subject matter for another post), but rather building a simple shiny app (first app) using <a href="%22http://ggvis.rstudio.com/%22">ggvis</a> and the <a href="https://cran.r-project.org/web/packages/NPS/NPS.pdf">NPS package in R authored by Brendan Rocks</a>, which provides functions that make working with the NPS survey data easier; includes Data transformation methods, statistical properties (variance &amp; SE), and simple inferential testing procedures. <a href="%22https://brendanrocks.com/work/%22">Brendan Rocks</a>, yes ‘Rocks’ is indeed his last name, was kind enough to help out with answering some of the questions I had on the NPS functions. Thank you Brendan.</p>
+<iframe src="https://busaanalytics.shinyapps.io/nps_app/?showcase=0" width="672" height="900px">
+</iframe>
