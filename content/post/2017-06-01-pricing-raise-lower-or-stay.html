@@ -109,8 +109,6 @@ plot_model1</code></pre>
 
 PEcalc(m.Final_product,Final_Product_data)</code></pre>
 <pre><code>## [1] -3.25</code></pre>
-<pre class="r"><code>#  &gt;$e_{(p)} = \frac{dQ/Q}{dP/P}$, where $dQ$ is the change in quantity $Q$ and $dP$ is the change in price $P$ 
-# Price elasticities are almost always negative, although analysts tend to ignore the sign even though this can lead to ambiguity. </code></pre>
 <p>The PE for the first model is -3.25, which shows that a 1% decrease in price will increase units sold by 3.25%. Or a 10% decrease in price will increase units sold by 32.5% and vice-versa.</p>
 <p>Elasticity Interpretation:</p>
 <ul>
@@ -132,8 +130,8 @@ equation_w_cost = function(x) (x-10)*((m.Final_product$coefficients[[1]]) + PEca
 
 opt_price_w_no_cost &lt;- optimize(equation_1_nocost, c(50,140), maximum = TRUE)
 opt_price_w_cost &lt;- optimize(equation_w_cost, c(50,100), maximum = TRUE)</code></pre>
-<p>The optimal price for maximizing revenue is 61.62; the maximum profit will be 12339.77.<br />
-The optimal price for maximizing profit is 66.62; the maximum profit will be 10418.41</p>
+<p>The optimal price for maximizing revenue is 61.62; the maximum profit will be <code>$</code>12339.77.<br />
+The optimal price for maximizing profit is 66.62; the maximum profit will be <code>$</code>10418.41</p>
 <p>Predict the sales</p>
 <pre class="r"><code>data_w_new_price &lt;- tibble(cost = opt_price_w_no_cost[[1]], Month = as.IDate(&quot;2017-07-01&quot;))
 predict(m.Final_product, data_w_new_price, interval = &quot;p&quot;)</code></pre>

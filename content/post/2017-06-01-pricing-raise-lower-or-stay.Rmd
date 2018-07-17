@@ -133,6 +133,10 @@ PEcalc <- function(modelresult, df) {
 
 PEcalc(m.Final_product,Final_Product_data)
 
+```
+
+```{r, echo= FALSE, eval = FALSE}
+
 #  >$e_{(p)} = \frac{dQ/Q}{dP/P}$, where $dQ$ is the change in quantity $Q$ and $dP$ is the change in price $P$ 
 # Price elasticities are almost always negative, although analysts tend to ignore the sign even though this can lead to ambiguity. 
 
@@ -166,8 +170,8 @@ opt_price_w_cost <- optimize(equation_w_cost, c(50,100), maximum = TRUE)
 
 ```
 
-The optimal price for maximizing revenue is `r round(opt_price_w_no_cost[[1]],2)`; the maximum profit will be `r round(opt_price_w_no_cost[[2]],2)`.  
-The optimal price for maximizing profit is `r round(opt_price_w_cost[[1]],2)`; the maximum profit will be `r round(opt_price_w_cost[[2]],2)`
+The optimal price for maximizing revenue is `r round(opt_price_w_no_cost[[1]],2)`; the maximum profit will be `$``r round(opt_price_w_no_cost[[2]],2)`.  
+The optimal price for maximizing profit is `r round(opt_price_w_cost[[1]],2)`; the maximum profit will be `$``r round(opt_price_w_cost[[2]],2)`
 
 Predict the sales
 ```{r}
